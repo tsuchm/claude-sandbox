@@ -28,7 +28,14 @@ docker compose -f docker-compose.yml down
 
 ## Configuration for Emacs to use claude-code.el
 
-[claude-code.el](https://github.com/stevemolitor/claude-code.el) を利用する場合、このディレクトリにある `claude-wrapper.sh` を、パスが通っている適当なディレクトリに `claude` というファイル名で置く。その上で、以下の設定を書く。
+[claude-code.el](https://github.com/stevemolitor/claude-code.el) を利用する場合、このディレクトリにある `claude-wrapper.sh` を、パスが通っている適当なディレクトリに `claude` というファイル名でシンボリックリンクする。
+
+```sh
+cd ~/.local/bin/
+ln -s ~/claude-sandbox/claude-wrapper.sh claude
+```
+
+その上で、以下の設定を書く。
 
 ```elisp
 (leaf ghostel

@@ -1,0 +1,27 @@
+services:
+  claude-sandbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: claude-sandbox
+    volumes:
+      - claude-home:/home/ubuntu
+      - ./claude-instructions.md:/home/ubuntu/CLAUDE.md:ro
+      - ./claude-settings.json:/home/ubuntu/settings.json:ro
+      - ./workspace:/workspace
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - devnet
+
+networks:
+  devnet:
+    driver: bridge
+
+volumes:
+  claude-home:

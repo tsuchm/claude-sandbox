@@ -7,7 +7,6 @@ RUN apt update \
 	bash \
 	build-essential \
 	ca-certificates \
-	containers-common \
 	curl \
 	debian-archive-keyring \
 	file \

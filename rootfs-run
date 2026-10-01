@@ -1,0 +1,40 @@
+#!/bin/bash
+# rootfs-run: docker デーモンと root なしで、rootfs の中でコマンドを実行する
+# usage: rootfs-run [--arch ARCH] IMAGE|DIR [CMD...]
+set -euo pipefail
+
+arch=
+if [ "${1:-}" = "--arch" ]; then arch=$2; shift 2; fi
+target=${1:?usage: rootfs-run [--arch ARCH] IMAGE|DIR [CMD...]}; shift
+[ $# -gt 0 ] || set -- /bin/sh
+
+base=${ROOTFS_DIR:-/var/cache/rootfs}
+
+case "$target" in
+  /*|./*)
+    # mmdebstrap などで作成済みの rootfs ディレクトリを直接使う
+    root=$(realpath "$target")
+    ;;
+  *)
+    key=$(printf '%s' "${target}${arch:+@$arch}" | tr '/:@' '___')
+    root=$base/$key
+    if [ ! -d "$root" ]; then
+      mkdir -p "$base"
+      tmp=$(mktemp -d "$root.tmp.XXXXXX")
+      trap 'chmod -R u+rwX "$tmp" 2>/dev/null; rm -rf "$tmp"' EXIT
+      skopeo copy ${arch:+--override-os linux --override-arch "$arch"} \
+        "docker://$target" "oci:$tmp/img:latest"
+      umoci unpack --rootless --image "$tmp/img:latest" "$tmp/bundle"
+      mv "$tmp/bundle/rootfs" "$root"
+      trap - EXIT
+      chmod -R u+rwX "$tmp" 2>/dev/null; rm -rf "$tmp"
+      total=$(du -sm "$base" 2>/dev/null | cut -f1)
+      if [ "${total:-0}" -gt "${ROOTFS_WARN_MB:-10240}" ]; then
+        echo "rootfs-run: キャッシュが ${total} MB です。不要な rootfs を削除してください" >&2
+      fi
+    fi
+    ;;
+esac
+
+exec proot -0 --kill-on-exit -r "$root" \
+  -b /dev -b /proc -b /etc/resolv.conf -b /workspace -w /workspace "$@"

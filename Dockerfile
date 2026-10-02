@@ -37,6 +37,8 @@ RUN mkdir -p /var/cache/rootfs && chown ubuntu:ubuntu /var/cache/rootfs
 ENV ROOTFS_DIR=/var/cache/rootfs
 COPY --chmod=755 rootfs-run /usr/local/bin/rootfs-run
 
+RUN pip3 install --break-system-packages --root-user-action=ignore uv wheel setuptools
+
 USER ubuntu
 ENV HOME=/home/ubuntu
 ENV PATH="${HOME}/.local/bin:${PATH}"

@@ -10,6 +10,8 @@ services:
       - ./claude-settings.json:/home/ubuntu/settings.json:ro
       - ./workspace:/workspace
     working_dir: /workspace
+    ports:
+      - "127.0.0.1:4321:4321"
     tty: true
     stdin_open: true
     security_opt:

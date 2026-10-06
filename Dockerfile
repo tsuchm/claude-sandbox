@@ -15,6 +15,8 @@ RUN apt update \
 	less \
 	lv \
 	mmdebstrap \
+	nodejs \
+	npm \
 	openssh-client \
 	procps \
 	proot \
@@ -43,6 +45,10 @@ USER ubuntu
 ENV HOME=/home/ubuntu
 ENV PATH="${HOME}/.local/bin:${PATH}"
 ENV LANG=C.UTF-8
+ENV ASTRO_TELEMETRY_DISABLED=1
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+
 WORKDIR /workspace
 
 RUN curl -fsSL https://claude.ai/install.sh | bash

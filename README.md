@@ -26,6 +26,39 @@ claude
 docker compose -f docker-compose.yml down
 ```
 
+## GPU の有無による起動方法の切り替え
+
+GPU 設定は `docker-compose-gpu.yml` に分離されている。`docker-compose.yml` 単体では GPU を要求しないため、NVIDIA GPU のないサーバでもそのまま起動できます。
+
+| ファイル | 内容 |
+| --- | --- |
+| `docker-compose.yml` | 共通設定(GPU 設定なし) |
+| `docker-compose-gpu.yml` | GPU 用の追加設定(NVIDIA GPU を全て割り当て) |
+
+### GPU なしのサーバ
+
+```bash
+docker compose up -d
+```
+
+### GPU ありのサーバ
+
+毎回 `-f` を指定する方法:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose-gpu.yml up -d
+```
+
+または、GPU ありサーバ上の `.env` に次の1行を書いておけば、通常のコマンドで両ファイルが読み込まれる。
+
+```
+COMPOSE_FILE=docker-compose.yml:docker-compose-gpu.yml
+```
+
+```bash
+docker compose up -d
+```
+
 ## Configuration for Emacs to use claude-code.el
 
 [claude-code.el](https://github.com/stevemolitor/claude-code.el) を利用する場合、このディレクトリにある `claude-wrapper.sh` を、パスが通っている適当なディレクトリに `claude` というファイル名でシンボリックリンクする。

@@ -10,6 +10,7 @@ RUN apt update \
 	curl \
 	debian-archive-keyring \
 	file \
+	fonts-noto-cjk \
 	git \
 	jq \
 	less \
@@ -18,6 +19,7 @@ RUN apt update \
 	nodejs \
 	npm \
 	openssh-client \
+	poppler-utils \
 	procps \
 	proot \
 	python3 \

@@ -59,6 +59,27 @@ COMPOSE_FILE=docker-compose.yml:docker-compose-gpu.yml
 docker compose up -d
 ```
 
+## 母艦側ユーザとの uid/gid の一致
+
+`./workspace` は bind mount なので、コンテナ内の `ubuntu` ユーザの uid/gid が母艦側のコンテナ実行ユーザと異なると、書き込めなくなる。
+母艦側のコンテナ実行ユーザの uid/gid が 1000:1000 以外の場合は、`.env` に次の2行を書いてからビルドする(`.env` は git 管理外)。
+
+```
+HOST_UID=2000
+HOST_GID=2000
+```
+
+コンテナ実行ユーザの値は `id -u` と `id -g` で確認できる。値を変えたときは `--build` で再ビルドする。
+
+名前付きボリューム `claude-home` は、作成時の所有者のまま残る。uid/gid を変えた場合は、次のように付け替える。
+
+```bash
+docker compose down
+docker run --rm -v claude-sandbox_claude-home:/h ubuntu:26.04 chown -R 2000:2000 /h
+```
+
+(ボリューム名は `docker volume ls` で確認する。上の例の `2000:2000` は自分の値に読み替える。)
+
 ## Configuration for Emacs to use claude-code.el
 
 [claude-code.el](https://github.com/stevemolitor/claude-code.el) を利用する場合、このディレクトリにある `claude-wrapper.sh` を、パスが通っている適当なディレクトリに `claude` というファイル名でシンボリックリンクする。

@@ -37,6 +37,14 @@ RUN apt update \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
+# bind mount した ./workspace を母艦側ユーザと同じ uid/gid で読み書きできるように、
+# ubuntu ユーザの uid/gid をビルド時に母艦側へ合わせる(既定は 1000:1000)。
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+RUN if [ "$(id -g ubuntu)" != "${HOST_GID}" ]; then groupmod -g "${HOST_GID}" ubuntu; fi \
+    && if [ "$(id -u ubuntu)" != "${HOST_UID}" ]; then usermod -u "${HOST_UID}" -g "${HOST_GID}" ubuntu; fi \
+    && chown -R "${HOST_UID}:${HOST_GID}" /home/ubuntu
+
 RUN mkdir -p /var/cache/rootfs && chown ubuntu:ubuntu /var/cache/rootfs
 ENV ROOTFS_DIR=/var/cache/rootfs
 COPY --chmod=755 rootfs-run /usr/local/bin/rootfs-run
